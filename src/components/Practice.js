@@ -3,7 +3,7 @@ import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const Lessons = () => {
+const Practice = () => {
     const [sentence, setSentence] = useState('');
     const [feedback, setFeedback] = useState('');
     const [error, setError] = useState('');
@@ -12,7 +12,7 @@ const Lessons = () => {
 
     useEffect(() => {
         if (!token) {
-            setError('Please log in to access lessons');
+            setError('Please log in to practice');
             // Optionally redirect to login page
             // navigate('/login');
         }
@@ -22,19 +22,19 @@ const Lessons = () => {
         e.preventDefault();
 
         if (!token) {
-            setError('Please log in to access lessons');
+            setError('Please log in to practice');
             return;
         }
 
         try {
-            const response = await axios.post('/api/lessons', { sentence }, { 
-                headers: { 'Authorization': `Bearer ${token}` } 
+            const response = await axios.post('/api/practice', {sentence}, {
+                headers: {'Authorization': `Bearer ${token}`}
             });
             setFeedback(response.data.feedback);
             setError('');
         } catch (err) {
             console.log(`Error getting feedback: ${err}`);
-            setError('Error submitting lesson. Please try again.');
+            setError('Error submitting practice. Please try again.');
             if (err.response?.status === 401) {
                 setError('Session expired. Please log in again.');
                 // Optionally redirect to login page
@@ -45,7 +45,7 @@ const Lessons = () => {
 
     return (
         <div className="container mx-auto p-6">
-            <h1 className="text-3xl font-bold text-center mb-8">Practice your lessons here</h1>
+            <h1 className="text-3xl font-bold text-center mb-8">Practice your sentence here</h1>
             {error && (
                 <motion.div
                     initial={{opacity: 0}}
@@ -89,4 +89,4 @@ const Lessons = () => {
     );
 };
 
-export default Lessons;
+export default Practice;
