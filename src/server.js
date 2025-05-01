@@ -13,7 +13,33 @@ console.log('Environment variables loaded:', !!process.env.MONGODB_URI);
 console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Defined' : 'Not defined');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
+
+// Debugging middleware
+app.use((req, res, next) => {
+    console.log(`Incoming request: ${req.method} ${req.url}`);
+    console.log('Headers:', req.headers);
+    next();
+});
+
+// Basic security headers
+app.use((req, res, next) => {
+    res.removeHeader('X-Powered-By');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    next();
+});
+
+// CORS middleware with more permissive settings
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', '*');
+    res.header('Access-Control-Allow-Methods', '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
+    next();
+});
 
 app.use(express.json()); //For parsinga pplication/json
 app.use(express.urlencoded({extended:true})); //For parsing application/x-www-form-urleconded
@@ -31,7 +57,7 @@ console.log('Attempting connection with URI:',
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    serverSelectionTimeoutMS: 5000
+    serverSelectionTimeoutMS: 4000
 })
 .then(() => console.log('Connected successfully!'))
 .catch(err => {
@@ -39,10 +65,18 @@ mongoose.connect(process.env.MONGODB_URI, {
     console.error('Full error:', err);
 });
 
-app.get('/', (req,res,next)=> {
-    res.send('Hello World!');
-})
+// Root route with explicit headers
+app.get('/', (req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.status(200).send('Hello World!');
+});
 
-app.listen(PORT, () => {
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Error:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+});
+
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
 });

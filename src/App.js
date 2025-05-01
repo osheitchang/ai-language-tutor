@@ -1,12 +1,17 @@
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import Lessons from './components/Lessons';
+import Practice from './components/Practice';
 import logo from './logo.svg';
 import './App.css';
-import Lessons from './components/Lessons'
 
 function App() {
   return (
-    <>
-    <Lessons />
-    </>
+    <Router>
+      <Routes>
+        <Route path="/practice" element={<Practice />} />
+        <Route path="/lessons" element={<Lessons />} />
+      </Routes>
+    </Router>
   );
 }
 
